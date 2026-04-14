@@ -1021,18 +1021,55 @@
     });
 
     // Form submit
-    function handleSubmit(e) {
-      e.preventDefault();
-      const btn = document.querySelector('.submit-btn');
-      btn.textContent = 'Sending...';
-      btn.style.opacity = '0.7';
+    // Form submit
+async function handleSubmit(e) {
+  e.preventDefault();
 
-      setTimeout(() => {
-        document.getElementById('contactForm').style.display = 'none';
-        document.querySelector('.form-header').style.display = 'none';
-        document.getElementById('successMsg').classList.add('show');
-      }, 1200);
+  const btn = document.querySelector('.submit-btn');
+  btn.textContent = 'Sending...';
+  btn.style.opacity = '0.7';
+  btn.disabled = true;
+
+  const form = document.getElementById('contactForm');
+
+  // Collect form data
+  const formData = {
+    access_key: 'ba218a67-85bc-435d-82d1-670578316173',
+    name:    form.querySelector('input[type="text"]').value,
+    email:   form.querySelector('input[type="email"]').value,
+    company: form.querySelectorAll('input[type="text"]')[1].value || 'N/A',
+    budget:  form.querySelector('select').value,
+    subject: form.querySelectorAll('input[type="text"]')[2].value,
+    message: form.querySelector('textarea').value,
+  };
+
+  try {
+    const res = await fetch('https://api.web3forms.com/submit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(formData)
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+      // Show success screen
+      form.style.display = 'none';
+      document.querySelector('.form-header').style.display = 'none';
+      document.getElementById('successMsg').classList.add('show');
+    } else {
+      btn.textContent = 'Failed. Try Again';
+      btn.style.opacity = '1';
+      btn.style.background = '#333';
+      btn.disabled = false;
     }
+
+  } catch (err) {
+    btn.textContent = 'Error. Try Again';
+    btn.style.opacity = '1';
+    btn.disabled = false;
+  }
+}
   </script>
 
 </body>
